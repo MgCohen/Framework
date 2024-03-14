@@ -1,0 +1,17 @@
+{
+    "name": "Scaffold.Input.Tagged",
+    "rootNamespace": "",
+    "references": [
+        "Scaffold.Tags",
+        "Scaffold.Input"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

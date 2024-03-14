@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c54148c07a76ef8429283cfd4cdcd0fd, type: 3}
+  m_Name: New Overlay Config
+  m_EditorClassIdentifier: 
+  schemas:
+    rid: 992169830852067330
+  asset:
+    m_AssetGUID: 
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
+  type:
+    serializedType: null
+  inAnimation: {fileID: 11400000, guid: 9675dffed0d3ae34cae2e630a33ee1b0, type: 2}
+  outAnimation: {fileID: 11400000, guid: 9675dffed0d3ae34cae2e630a33ee1b0, type: 2}
+  references:
+    version: 2
+    RefIds:
+    - rid: 992169830852067330
+      type: {class: SchemaSet, ns: Scaffold.Schemas, asm: Scaffold.Schemas}
+      data:
+        Collection: []

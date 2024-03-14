@@ -1,0 +1,17 @@
+{
+  "name": "com.scaffold.stateful",
+  "displayName": "Stateful",
+  "version": "1.0.0",
+  "description": "State Machines for components",
+  "keywords": [
+    "scriptableobjects",
+    "inspector",
+    "asset",
+    "editor"
+  ],
+  "category": "editor extensions",
+  "author": {
+    "name": "Matheus Gandolf Cohen",
+    "url": "https://github.com/MgCohen"
+  }
+}

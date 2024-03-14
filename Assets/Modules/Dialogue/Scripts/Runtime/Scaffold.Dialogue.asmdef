@@ -1,0 +1,21 @@
+{
+    "name": "Scaffold.Dialogue",
+    "rootNamespace": "",
+    "references": [
+        "NaughtyAttributes.Core",
+        "Unity.Addressables",
+        "Zenject",
+        "Unity.TextMeshPro",
+        "Scaffold.DynamicList",
+        "Scaffold.Screens"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

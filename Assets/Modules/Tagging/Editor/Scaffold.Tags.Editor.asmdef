@@ -1,0 +1,16 @@
+{
+    "name": "Scaffold.Tags.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:0074edc18cccd564284894cd86b3ea41"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
