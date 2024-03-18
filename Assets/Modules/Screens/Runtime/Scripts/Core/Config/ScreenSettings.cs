@@ -11,8 +11,12 @@ namespace Scaffold.Screens.Core
     [CreateAssetMenu(menuName = "Game/Screens/Dictionary")]
     public class ScreenSettings : ScriptableObject
     {
+        public ScreenTransition Transition => transition;
+
+        [SerializeField] private ScreenTransition transition;
         [SerializeField] private List<ScreenConfig> screens = new List<ScreenConfig>();
         [SerializeField] private List<OverlayConfig> overlays = new List<OverlayConfig>();
+        [SerializeField] private ScreenCacheOptions cacheOptions = new ScreenCacheOptions();
 
         public bool TryGetScreenConfig(Type type, out ScreenConfig config)
         {
@@ -24,6 +28,15 @@ namespace Scaffold.Screens.Core
         {
             config = overlays.FirstOrDefault(s => s.Type.IsAssignableFrom(type));
             return config != null;
+        }
+
+        public class ScreenCacheOptions
+        {
+            [SerializeField] private bool limitCacheSize;
+            [SerializeField] private int maxCachedScreens;
+
+            [SerializeField] private bool limitCacheLifetime;
+            [SerializeField] private int cachedScreenLifetimeInMinutes;
         }
     }
 }
