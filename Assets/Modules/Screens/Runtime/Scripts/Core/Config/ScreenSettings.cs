@@ -8,10 +8,12 @@ using System.Linq;
 namespace Scaffold.Screens.Core
 {
 
-    [CreateAssetMenu(menuName = "Game/Screens/Dictionary")]
+    [CreateAssetMenu(menuName = "Scaffold/Screens/Screen Settings")]
+
     public class ScreenSettings : ScriptableObject
     {
         public ScreenTransition Transition => transition;
+        public ScreenCacheOptions CacheOptions => cacheOptions;
 
         [SerializeField] private ScreenTransition transition;
         [SerializeField] private List<ScreenConfig> screens = new List<ScreenConfig>();
@@ -32,10 +34,16 @@ namespace Scaffold.Screens.Core
 
         public class ScreenCacheOptions
         {
+            public bool LimitCacheSize => limitCacheSize;
             [SerializeField] private bool limitCacheSize;
+
+            public int MaxCachedScreens => maxCachedScreens;
             [SerializeField] private int maxCachedScreens;
 
+            public bool LimitCacheLifeTime => limitCacheLifetime;
             [SerializeField] private bool limitCacheLifetime;
+
+            public int CachedScreenLifetimeInMinutes => cachedScreenLifetimeInMinutes;
             [SerializeField] private int cachedScreenLifetimeInMinutes;
         }
     }
