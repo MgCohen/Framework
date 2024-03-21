@@ -15,7 +15,7 @@ namespace Scaffold.Screens.Injected
             Container.Bind<IScreenFactory>().To<ScreenFactoryWithInjection>().AsTransient();
             Container.Bind<IScreenProvider>().To<ScreenProvider>().AsSingle().NonLazy();
             Container.Bind<ScreenStack>().AsSingle();
-            Container.Bind<ScreenAnimationController>().FromNewComponentOnNewGameObject().AsTransient();
+            Container.Bind<ScreenTransitionController>().FromNewComponentOnNewGameObject().AsTransient();
             Container.BindInterfacesAndSelfTo<ScreenSettings>().FromInstance(screens);
 
             //look through all signals?

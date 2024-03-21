@@ -5,15 +5,10 @@ using UnityEngine;
 
 namespace Scaffold.Screens.Core
 {
-    public class ScreenAnimationController : MonoBehaviour
+    public class ScreenTransitionController : MonoBehaviour
     {
         private Queue<IEnumerator> pendingSequences = new Queue<IEnumerator>();
         private Coroutine sequenceCO;
-
-        public void QueueSequence(StackedScreen screen, Action beforeAnimation, Action afterAnimation)
-        {
-             
-        }
 
         public void QueueSequence(IEnumerator sequence)
         {
