@@ -2,17 +2,17 @@ using System;
 using System.Linq;
 using System.Collections;
 using UnityEngine;
-using System.Collections.Generic;
 
 namespace Scaffold.Screens.Core
 {
     public class ScreenService : IScreenService
     {
-        public ScreenService(IScreenProvider provider, ScreenAnimationController animations, ScreenStack stack, ScreenSettings settings)
+        public ScreenService(IScreenProvider provider, ScreenTransitionController animations, ScreenStack stack, ScreenCache cache, ScreenSettings settings)
         {
             this.provider = provider;
             this.screenAnimations = animations;
             this.stack = stack;
+            this.cache = cache;
             this.settings = settings;
         }
 
@@ -20,8 +20,9 @@ namespace Scaffold.Screens.Core
         public StackedScreen CurrentStackedScreen => stack.CurrentStackedScreen;
 
         private IScreenProvider provider;
-        private ScreenAnimationController screenAnimations;
+        private ScreenTransitionController screenAnimations;
         private ScreenStack stack;
+        private ScreenCache cache;
         private ScreenSettings settings;
 
         private OverlayService overlays;
@@ -60,19 +61,18 @@ namespace Scaffold.Screens.Core
         public void Close<T>() where T : IScreen
         {
             StackedScreen stackedScreen = stack.Get<T>();
-            if (stackedScreen != null && stackedScreen.Screen != null)
-            {
-                screenAnimations.QueueSequence(CloseSequence(stackedScreen));
-            }
+            CloseStackedScreen(stackedScreen);
         }
 
         public void Close(IScreen screen)
         {
             StackedScreen stackedScreen = stack.Get(screen);
-            if (stackedScreen != null)
-            {
-                screenAnimations.QueueSequence(CloseSequence(stackedScreen));
-            }
+            CloseStackedScreen(stackedScreen);
+        }
+
+        private void CloseStackedScreen(StackedScreen screen)
+        {
+            screenAnimations.QueueSequence(CloseSequence(screen));
         }
 
         public void CloseCurrentScreen()
@@ -159,16 +159,8 @@ namespace Scaffold.Screens.Core
             FocusCurrentScreen(); //CurrentScreen is now the previous screen, Unhide/focus it to guarantee there is something behind when closing
             yield return stacked.Screen.Close();
 
-            bool hasOtherUses = stack.GetAllStackedScreens(st => st.Screen == stacked.Screen).Count > 1;
-            if (stacked.DestroyOnClose && !hasOtherUses)
-            {
-                //only destroy if there is no other usage for this screen in the stack
-                GameObject.Destroy(stacked.ScreenObject);
-            }
-            else
-            {
-                stacked.ScreenObject.SetActive(false);
-            }
+            stacked.ScreenObject.SetActive(false); //just in case the animation didnt force this
+            cache.CacheScreen(stacked);
 
             if (notify)
             {
@@ -187,54 +179,5 @@ namespace Scaffold.Screens.Core
             yield return CloseSequence(CurrentStackedScreen, notify);
         }
         #endregion
-    }
-
-    public class OverlayService
-    {
-        private ScreenFactory factory;
-        private ScreenAnimationController screenQueue;
-        private Transform overlayHolder;
-        private List<IScreen> currentOverlays = new List<IScreen>();
-
-        public IEnumerator RemoveUnusedOverlays(ScreenConfig fromScreen, ScreenConfig toScreen)
-        {
-            List<IScreen> overlaysToRemove = new List<IScreen>();
-            int animationCounter = 0;
-            foreach (var overlay in currentOverlays)
-            {
-                if (!toScreen.HasOverlay(overlay))
-                {
-                    overlaysToRemove.Add(overlay);
-                    animationCounter++;
-                    OverlayConfig config = fromScreen.GetConfig(overlay);
-                    screenQueue.StartSequenceWithCallback(config.OutAnimation.Animate(overlay, true), () =>
-                    {
-                        animationCounter--;
-                    });
-                }
-            }
-            yield return new WaitUntil(() => animationCounter <= 0);
-            currentOverlays = currentOverlays.Except(overlaysToRemove).ToList();
-        }
-
-        public IEnumerator OpenMissingOverlays(ScreenConfig toScreen)
-        {
-            int animationCounter = 0;
-            foreach (var config in toScreen.Overlays)
-            {
-                if (!currentOverlays.Any(overlay => overlay.GetType() == config.Type))
-                {
-                    IScreen overlay = factory.Create(config.Type, overlayHolder);
-                    currentOverlays.Add(overlay);
-                    animationCounter++;
-                    screenQueue.StartSequenceWithCallback(config.InAnimation.Animate(overlay), () =>
-                    {
-                        animationCounter--;
-                    });
-                }
-            }
-
-            yield return new WaitUntil(() => animationCounter <= 0);
-        }
     }
 }
