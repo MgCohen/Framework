@@ -14,6 +14,9 @@ namespace Scaffold.Screens.Core
         public List<StackedScreen> Stack => stack;
         private List<StackedScreen> stack = new List<StackedScreen>();
 
+        public event Action OnStackChanged = delegate { };
+        public event Action<StackOperation, StackedScreen> OnStackChanged2 = delegate { };
+
         public StackedScreen Get<T>()
         {
             return Get(typeof(T));
@@ -46,6 +49,8 @@ namespace Scaffold.Screens.Core
             {
                 stack.Add(stacked);
                 CurrentStackedScreen = stacked;
+                OnStackChanged?.Invoke();
+                OnStackChanged2?.Invoke(StackOperation.Add, stacked);
             }
         }
 
@@ -58,6 +63,8 @@ namespace Scaffold.Screens.Core
                 {
                     CurrentStackedScreen = stack.LastOrDefault();
                 }
+                OnStackChanged2?.Invoke(StackOperation.Remove, stacked);
+                OnStackChanged?.Invoke();
             }
         }
 
@@ -65,5 +72,13 @@ namespace Scaffold.Screens.Core
         {
             stack.Clear();
         }
+
+        public enum StackOperation
+        {
+            Add = 0,
+            Remove = 1
+        }
     }
+
 }
+

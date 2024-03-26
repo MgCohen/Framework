@@ -7,16 +7,18 @@ namespace Scaffold.Screens.Core
 {
     public class ScreenProvider : IScreenProvider
     {
-        public ScreenProvider(ScreenStack stack, IScreenFactory factory)
+        public ScreenProvider(ScreenStack stack, ScreenCache cache, IScreenFactory factory)
         {
-            this.factory = factory;
             this.stack = stack;
+            this.cache = cache;
+            this.factory = factory;
             this.screenHolder = new GameObject("Screen Holder").transform;
             GetScreensInScene();
         }
 
-        private IScreenFactory factory;
         private ScreenStack stack;
+        private ScreenCache cache;
+        private IScreenFactory factory;
         private Transform screenHolder;
         private Dictionary<Type, IScreen> sceneScreens = new Dictionary<Type, IScreen>();
 
@@ -37,6 +39,11 @@ namespace Scaffold.Screens.Core
 
         public StackedScreen GetScreen(Type screenType)
         {
+            if(TryGetCachedScreen(screenType, out IScreen cached))
+            {
+                return new StackedScreen(cached, false);
+            }
+
             if (TryGetStackedScreen(screenType, out StackedScreen stacked))
             {
                 return new StackedScreen(stacked.Screen, stacked.DestroyOnClose);
@@ -53,6 +60,11 @@ namespace Scaffold.Screens.Core
             }
 
             return null;
+        }
+
+        private bool TryGetCachedScreen(Type screenType, out IScreen screen)
+        {
+            return cache.TryRecoverScreen(screenType, out screen);
         }
 
         private bool TryGetStackedScreen(Type screenType, out StackedScreen stacked)

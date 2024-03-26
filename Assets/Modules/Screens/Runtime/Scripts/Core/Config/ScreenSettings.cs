@@ -7,15 +7,13 @@ using System.Linq;
 
 namespace Scaffold.Screens.Core
 {
-
     [CreateAssetMenu(menuName = "Scaffold/Screens/Screen Settings")]
-
     public class ScreenSettings : ScriptableObject
     {
-        public ScreenTransition Transition => transition;
+        public ScreenTransition DefaultTransition => defaultTransition;
         public ScreenCacheOptions CacheOptions => cacheOptions;
 
-        [SerializeField] private ScreenTransition transition;
+        [SerializeField] private ScreenTransition defaultTransition;
         [SerializeField] private List<ScreenConfig> screens = new List<ScreenConfig>();
         [SerializeField] private List<OverlayConfig> overlays = new List<OverlayConfig>();
         [SerializeField] private ScreenCacheOptions cacheOptions = new ScreenCacheOptions();
@@ -30,21 +28,6 @@ namespace Scaffold.Screens.Core
         {
             config = overlays.FirstOrDefault(s => s.Type.IsAssignableFrom(type));
             return config != null;
-        }
-
-        public class ScreenCacheOptions
-        {
-            public bool LimitCacheSize => limitCacheSize;
-            [SerializeField] private bool limitCacheSize;
-
-            public int MaxCachedScreens => maxCachedScreens;
-            [SerializeField] private int maxCachedScreens;
-
-            public bool LimitCacheLifeTime => limitCacheLifetime;
-            [SerializeField] private bool limitCacheLifetime;
-
-            public int CachedScreenLifetimeInMinutes => cachedScreenLifetimeInMinutes;
-            [SerializeField] private int cachedScreenLifetimeInMinutes;
         }
     }
 }

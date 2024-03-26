@@ -29,17 +29,5 @@ namespace Scaffold.Screens.Core
             name = $"Screen Queue - Idle";
             sequenceCO = null;
         }
-
-        public void StartSequenceWithCallback(IEnumerator sequence, Action onComplete)
-        {
-            StartCoroutine(RunWithCallback(sequence, onComplete));
-        }
-
-        private IEnumerator RunWithCallback(IEnumerator sequence, Action onComplete)
-        {
-            yield return sequence;
-            onComplete?.Invoke();
-        }
-
     }
 }

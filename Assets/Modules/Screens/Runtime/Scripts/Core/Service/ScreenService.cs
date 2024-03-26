@@ -24,8 +24,7 @@ namespace Scaffold.Screens.Core
         private ScreenStack stack;
         private ScreenCache cache;
         private ScreenSettings settings;
-
-        private OverlayService overlays;
+        private ScreenNavigation navigation;
 
         public event Action<IScreen, IScreen> OnScreenChanged = delegate { };
 
@@ -39,7 +38,8 @@ namespace Scaffold.Screens.Core
         public IScreen Open(Type screenType, bool closeCurrent = false)
         {
             StackedScreen stack = provider.GetScreen(screenType);
-            return OpenStackedScreen(stack, closeCurrent);
+            Open(stack, closeCurrent);
+            return stack.Screen;
         }
 
         public T Open<T>(IScreenContext context, bool closeCurrent = false) where T : IScreen
@@ -49,81 +49,13 @@ namespace Scaffold.Screens.Core
             {
                 stack.DefineContext(context);
             }
-            return (T)OpenStackedScreen(stack, closeCurrent);
+            Open(stack, closeCurrent);
+            return (T)stack.Screen;
         }
 
-        private IScreen OpenStackedScreen(StackedScreen screen, bool closeCurrent = false)
+        private void Open(StackedScreen stacked, bool closeCurrent)
         {
-            screenAnimations.QueueSequence(OpenSequence(screen, closeCurrent));
-            return screen.Screen;
-        }
-
-        public void Close<T>() where T : IScreen
-        {
-            StackedScreen stackedScreen = stack.Get<T>();
-            CloseStackedScreen(stackedScreen);
-        }
-
-        public void Close(IScreen screen)
-        {
-            StackedScreen stackedScreen = stack.Get(screen);
-            CloseStackedScreen(stackedScreen);
-        }
-
-        private void CloseStackedScreen(StackedScreen screen)
-        {
-            screenAnimations.QueueSequence(CloseSequence(screen));
-        }
-
-        public void CloseCurrentScreen()
-        {
-            if (stack.CurrentScreen != null)
-            {
-                Close(stack.CurrentScreen);
-            }
-        }
-
-        public void CloseAll()
-        {
-            for (int i = stack.Count - 2; i >= 0; i--)
-            {
-                GameObject.Destroy(stack.Stack[i].ScreenObject);
-                stack.RemoveFromStack(stack.Stack[i]);
-            }
-            Close(CurrentScreen);
-            stack.ClearStack();
-        }
-
-        private void FocusCurrentScreen()
-        {
-            if (stack.Count > 0)
-            {
-                StackedScreen stackedScreen = stack.Stack[^1];
-                var context = stackedScreen.Context;
-                var screen = stackedScreen.Screen;
-                if (screen is IScreenT tscreen)
-                {
-                    tscreen.SetContext(context);
-                }
-                screen.Focus();
-            }
-        }
-
-        private void HideCurrentScreen()
-        {
-            if (CurrentScreen != null)
-            {
-                CurrentScreen.Hide();
-            }
-        }
-
-        #endregion
-
-        #region Sequences
-        private IEnumerator OpenSequence(StackedScreen stacked, bool closeCurrent = false, bool notify = true)
-        {
-            var oldScreen = CurrentScreen;
-
+            var previous = CurrentStackedScreen;
             if (CurrentScreen == stacked.Screen)
             {
                 //do nothing, its the same screen with a diferent context
@@ -134,50 +66,132 @@ namespace Scaffold.Screens.Core
             }
             else if (closeCurrent && CurrentStackedScreen != null)
             {
-                yield return CloseOthersSequence(stacked, false);
-            }
-            else
-            {
-                HideCurrentScreen();
+                Close(CurrentStackedScreen, false);
             }
 
             stack.AddToStack(stacked);
-            stacked.ScreenObject.SetActive(true);
-            stacked.Screen.SetLayer(stack.Count * 2); //multiply by 2 so there is always one empty layer for extras and overlays
-
-            if (notify)
-            {
-                OnScreenChanged?.Invoke(oldScreen, stacked.Screen);
-            }
-            yield return stacked.Screen.Open();
-            yield return overlays.OpenMissingOverlays(stacked.Config);
+            navigation.DoTransition(previous, stacked);
         }
 
-        private IEnumerator CloseSequence(StackedScreen stacked, bool notify = true)
+        public void Close<T>() where T : IScreen
+        {
+            StackedScreen stackedScreen = stack.Get<T>();
+            Close(stackedScreen);
+        }
+
+        public void Close(IScreen screen)
+        {
+            StackedScreen stackedScreen = stack.Get(screen);
+            Close(stackedScreen);
+        }
+
+        private void Close(StackedScreen stacked, bool notify = true)
         {
             stack.RemoveFromStack(stacked);
-            FocusCurrentScreen(); //CurrentScreen is now the previous screen, Unhide/focus it to guarantee there is something behind when closing
-            yield return stacked.Screen.Close();
-
-            stacked.ScreenObject.SetActive(false); //just in case the animation didnt force this
-            cache.CacheScreen(stacked);
-
             if (notify)
             {
-                OnScreenChanged?.Invoke(stacked.Screen, CurrentScreen);
+                navigation.DoTransition(stacked, CurrentStackedScreen);
             }
         }
 
-        private IEnumerator CloseOthersSequence(StackedScreen stacked, bool notify = true)
+        public void CloseCurrentScreen()
         {
-            var screens = stack.GetAllScreens(st => st.Screen != CurrentScreen && st.Screen != stacked.Screen).Distinct();
-            foreach (var screen in screens)
+            if (stack.CurrentStackedScreen != null)
             {
-                GameObject.Destroy(screen.gameObject);
+                Close(stack.CurrentStackedScreen);
             }
-            stack.ClearStack();
-            yield return CloseSequence(CurrentStackedScreen, notify);
         }
+
+        public void CloseAll()
+        {
+            //add to cache
+            stack.ClearStack();
+        }
+
         #endregion
+
+        //#region Sequences
+        //private IEnumerator OpenSequence(StackedScreen stacked, bool closeCurrent = false, bool notify = true)
+        //{
+        //    var oldScreen = CurrentScreen;
+
+        //    if (CurrentScreen == stacked.Screen)
+        //    {
+        //        //do nothing, its the same screen with a diferent context
+        //    }
+        //    else if (CurrentScreen?.ScreenType is ScreenType.Overlay)
+        //    {
+        //        //do nothing, overlays should manage itself
+        //    }
+        //    else if (closeCurrent && CurrentStackedScreen != null)
+        //    {
+        //        yield return CloseOthersSequence(stacked, false);
+        //    }
+        //    else
+        //    {
+        //        HideCurrentScreen();
+        //    }
+
+        //    stack.AddToStack(stacked);
+        //    stacked.ScreenObject.SetActive(true);
+        //    stacked.Screen.SetLayer(stack.Count * 2); //multiply by 2 so there is always one empty layer for extras and overlays
+
+        //    if (notify)
+        //    {
+        //        OnScreenChanged?.Invoke(oldScreen, stacked.Screen);
+        //    }
+        //    yield return stacked.Screen.Open();
+        //    yield return overlays.OpenMissingOverlays(stacked.Config);
+        //}
+
+        //private IEnumerator CloseSequence(StackedScreen stacked, bool notify = true)
+        //{
+        //    stack.RemoveFromStack(stacked);
+        //    FocusCurrentScreen(); //CurrentScreen is now the previous screen, Unhide/focus it to guarantee there is something behind when closing
+        //    yield return stacked.Screen.Close();
+
+        //    stacked.ScreenObject.SetActive(false); //just in case the animation didnt force this
+        //    cache.CacheScreen(stacked);
+
+        //    if (notify)
+        //    {
+        //        OnScreenChanged?.Invoke(stacked.Screen, CurrentScreen);
+        //    }
+        //}
+
+        //private void HideCurrentScreen()
+        //{
+        //    if (CurrentScreen != null)
+        //    {
+        //        CurrentScreen.Hide();
+        //    }
+        //}
+
+        //private void FocusCurrentScreen()
+        //{
+        //    if (stack.Count > 0)
+        //    {
+        //        StackedScreen stackedScreen = stack.Stack[^1];
+        //        var context = stackedScreen.Context;
+        //        var screen = stackedScreen.Screen;
+        //        if (screen is IScreenT tscreen)
+        //        {
+        //            tscreen.SetContext(context);
+        //        }
+        //        screen.Focus();
+        //    }
+        //}
+
+        //private IEnumerator CloseOthersSequence(StackedScreen stacked, bool notify = true)
+        //{
+        //    var screens = stack.GetAllScreens(st => st.Screen != CurrentScreen && st.Screen != stacked.Screen).Distinct();
+        //    foreach (var screen in screens)
+        //    {
+        //        GameObject.Destroy(screen.gameObject);
+        //    }
+        //    stack.ClearStack();
+        //    yield return CloseSequence(CurrentStackedScreen, notify);
+        //}
+        //#endregion
     }
 }

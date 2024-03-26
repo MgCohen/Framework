@@ -14,11 +14,13 @@ namespace Scaffold.Screens.Core
         }
 
         private ScreenStack stack;
-        private ScreenSettings.ScreenCacheOptions cacheOptions;
+        private ScreenCacheOptions cacheOptions;
         private Dictionary<IScreen, DateTime> cachedScreens = new Dictionary<IScreen, DateTime>();
 
         public void CacheScreen(StackedScreen stacked)
         {
+            //TODO: scene stacked should not go to cache, as they never get destroyed
+
             cachedScreens[stacked.Screen] = DateTime.Now;
             if (ShouldClearCache())
             {
@@ -109,15 +111,19 @@ namespace Scaffold.Screens.Core
         {
             foreach (var screen in screens)
             {
-                bool hasOtherUses = stack.GetAllStackedScreens(st => st.Screen == screen).Count > 0;
+                bool hasOtherUses = IsScreenUsed(screen);
                 if (!hasOtherUses)
                 {
-                    GameObject screenObj = (screen as MonoBehaviour).gameObject;
-                    GameObject.Destroy(screenObj);
                     cachedScreens.Remove(screen);
+                    GameObject.Destroy(screen.gameObject);
                 }
             }
 
+        }
+
+        private bool IsScreenUsed(IScreen screen)
+        {
+            return stack.GetAllStackedScreens(st => st.Screen == screen).Any();
         }
     }
 }
