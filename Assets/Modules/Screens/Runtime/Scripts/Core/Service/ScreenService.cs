@@ -69,8 +69,9 @@ namespace Scaffold.Screens.Core
                 Close(CurrentStackedScreen, false);
             }
 
+            TransitionType transition = closeCurrent ? TransitionType.Full : TransitionType.InOnly;
             stack.AddToStack(stacked);
-            navigation.DoTransition(previous, stacked);
+            navigation.DoTransition(transition, previous, stacked);
         }
 
         public void Close<T>() where T : IScreen
@@ -90,7 +91,7 @@ namespace Scaffold.Screens.Core
             stack.RemoveFromStack(stacked);
             if (notify)
             {
-                navigation.DoTransition(stacked, CurrentStackedScreen);
+                navigation.DoTransition(TransitionType.OutOnly, stacked, CurrentStackedScreen);
             }
         }
 

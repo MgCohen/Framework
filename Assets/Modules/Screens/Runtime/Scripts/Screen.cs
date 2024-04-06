@@ -11,10 +11,10 @@ namespace Scaffold.Screens
     [RequireComponent(typeof(CanvasScaler))]
     public abstract class Screen : MonoBehaviour, IScreen
     {
-        public List<ScreenComponent> Components => components;
-        [SerializeField, HideInInspector] private List<ScreenComponent> components = new List<ScreenComponent>();
-
+        public Canvas Canvas => canvas;
         [SerializeField, HideInInspector] protected Canvas canvas;
+
+        public RectTransform Content => content;
         [SerializeField, HideInInspector] protected RectTransform content;
 
         private bool initialized = false;
@@ -40,11 +40,7 @@ namespace Scaffold.Screens
 
         protected virtual void Setup()
         {
-            components = GetComponents<ScreenComponent>().ToList();
-            foreach (var component in components)
-            {
-                component.Setup(this);
-            }
+
         }
 
         public IEnumerator Open()
@@ -53,11 +49,6 @@ namespace Scaffold.Screens
             {
                 Setup();
                 initialized = true;
-            }
-
-            foreach (var component in components)
-            {
-                component.OnOpen(true);
             }
             yield return OnOpen();
         }
@@ -69,10 +60,6 @@ namespace Scaffold.Screens
 
         public IEnumerator Close()
         {
-            foreach (var component in components)
-            {
-                component.OnClose(true);
-            }
             yield return OnClose();
         }
 
@@ -84,10 +71,6 @@ namespace Scaffold.Screens
         public void Focus()
         {
             gameObject.SetActive(true);
-            foreach (var component in components)
-            {
-                component.OnOpen(false);
-            }
             OnFocus();
         }
 
@@ -95,10 +78,6 @@ namespace Scaffold.Screens
 
         public void Hide()
         {
-            foreach (var component in components)
-            {
-                component.OnClose(false);
-            }
             OnHide();
             gameObject.SetActive(false);
         }

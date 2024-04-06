@@ -7,7 +7,8 @@ namespace Scaffold.Screens
 
     public interface IScreen
     {
-        public List<ScreenComponent> Components { get; }
+        public Canvas Canvas { get; }
+        public RectTransform Content { get; }
         public GameObject gameObject { get; }
         public ScreenType ScreenType { get; }
         public int Layer { get; }
