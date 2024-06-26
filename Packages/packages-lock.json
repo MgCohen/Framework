@@ -8,10 +8,11 @@
       "hash": "8a8fa5a9659a6d63f196391c71e06c4286c8acd7"
     },
     "com.scaffold.schemas": {
-      "version": "file:com.scaffold.schemas",
+      "version": "https://github.com/ScaffoldLibrary/Schemas.git",
       "depth": 0,
-      "source": "embedded",
-      "dependencies": {}
+      "source": "git",
+      "dependencies": {},
+      "hash": "daff7ec667be85c39fe8e4303c176dad89b15097"
     },
     "com.scaffold.stateful": {
       "version": "file:com.scaffold.stateful",

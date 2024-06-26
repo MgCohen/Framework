@@ -15,10 +15,10 @@ MonoBehaviour:
   schemas:
     rid: 992169866911547393
   asset:
-    m_AssetGUID: 
+    m_AssetGUID: 2f58c7d6f67799b4ab67cdf414e7f6d5
     m_SubObjectName: 
     m_SubObjectType: 
-    m_EditorAssetChanged: 0
+    m_EditorAssetChanged: 1
   type:
     serializedType: null
   inAnimation: {fileID: 0}

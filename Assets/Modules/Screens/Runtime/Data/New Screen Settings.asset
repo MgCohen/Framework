@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d52f7708d4273b4f82e93d6a6f6fe14, type: 3}
   m_Name: New Screen Settings
   m_EditorClassIdentifier: 
-  transition: {fileID: 0}
-  screens: []
+  defaultTransition: {fileID: 0}
+  screens:
+  - {fileID: 11400000, guid: 1862e1450e3ebb14a8abb3b50f678b84, type: 2}
   overlays: []
